@@ -1,0 +1,59 @@
+# Explanation: This specifies the version of the Docker Compose file format.
+version: '3.8'
+
+# Explanation: This section defines all the different services (containers)
+# that make up our application.
+services:
+  # --- Web Application Service ---
+  web:
+    # Explanation: Tells Docker Compose to build the image for this service
+    # using the Dockerfile found in the 'app' subfolder.
+    build: ./app
+    # Explanation: Maps port 5000 on your computer to port 5000 inside the 'web' container.
+    ports:
+      - "5000:5000"
+    # Explanation: Sets environment variables inside the 'web' container.
+    # These are used by app.py to connect to the database.
+    # 'db' here refers to the name of our database service below.
+    environment:
+      DB_HOST: db
+      DB_NAME: mydatabase
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+    # Explanation: Declares that the 'web' service depends on the 'db' service.
+    # Docker Compose will start 'db' before 'web'.
+    depends_on:
+      - db
+    # Explanation: This makes sure the container restarts if it crashes,
+    # unless you manually stop it.
+    restart: always
+
+  # --- Database Service ---
+  db:
+    # Explanation: Uses a pre-built PostgreSQL image from Docker Hub.
+    # 'postgres:13-alpine' is a lightweight version of PostgreSQL.
+    image: postgres:13-alpine
+    # Explanation: Sets environment variables for the PostgreSQL database.
+    # These are used by the PostgreSQL image to set up the database.
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    # Explanation: This is crucial for data persistence!
+    # It creates a Docker Volume named 'db_data' and mounts it to
+    # '/var/lib/postgresql/data' inside the 'db' container.
+    # This is where PostgreSQL stores its data. If you stop/remove the 'db' container,
+    # the data in 'db_data' volume will remain, so your messages won't be lost.
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    # Explanation: Restarts the database container if it crashes.
+    restart: always
+
+# Explanation: This section defines the Docker Volumes we are using.
+# Docker Compose will create this volume if it doesn't exist.
+volumes:
+  db_data:
+    # Explanation: You can add a label or description for the volume.
+    name: my_app_db_volume
+
+

@@ -1,0 +1,39 @@
+# Explanation: This specifies the version of the buildspec file format.
+version: 0.2
+
+# Explanation: This defines the different phases of our build process.
+phases:
+  # Explanation: Commands to run before the build starts.
+  pre_build:
+    commands:
+      # Explanation: Log in to AWS ECR using the Docker CLI.
+      # This command gets temporary AWS credentials and uses them to authenticate Docker.
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+      # Explanation: Define the image name and tag.
+      # We'll use the CodeBuild build ID as a unique tag for our image.
+      - REPOSITORY_URI=$ECR_REPOSITORY_URI
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7) # Use first 7 chars of commit ID
+
+  # Explanation: Commands to run during the build process.
+  build:
+    commands:
+      # Explanation: Build the Docker image for our web application.
+      # We use the Dockerfile located in the 'app' subfolder.
+      - echo "Building the Docker image..."
+      - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG ./app
+
+  # Explanation: Commands to run after the build completes successfully.
+  post_build:
+    commands:
+      # Explanation: Push the 'latest' and tagged images to ECR.
+      - echo "Pushing the Docker image to ECR..."
+      - docker push $REPOSITORY_URI:latest
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo "Build and push complete!"
+
+# Explanation: This section specifies which artifacts (files) to save from the build.
+# In our case, we don't need to save any files, as our output is the Docker image in ECR.
+artifacts:
+  files: []
+

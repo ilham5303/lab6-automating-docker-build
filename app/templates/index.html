@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Compose App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f9fc;
+            color: #333;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            margin: 20px auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
+            text-align: left;
+        }
+        h1 {
+            color: #2a6496;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+        input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+        .message-list {
+            list-style: none;
+            padding: 0;
+        }
+        .message-item {
+            background-color: #f0f8ff;
+            border: 1px solid #e0eaf5;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .message-item strong {
+            color: #0056b3;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Message Board</h1>
+        <form method="post">
+            <label for="content">New Message:</label>
+            <input type="text" id="content" name="content" required>
+            <input type="submit" value="Add Message">
+        </form>
+
+        <h2>Messages:</h2>
+        <ul class="message-list">
+            {% if messages %}
+                {% for message in messages %}
+                    <li class="message-item">
+                        <span><strong>ID {{ message[0] }}:</strong> {{ message[1] }}</span>
+                    </li>
+                {% endfor %}
+            {% else %}
+                <p>No messages yet. Add one above!</p>
+            {% endif %}
+        </ul>
+    </div>
+</body>
+</html>
+
