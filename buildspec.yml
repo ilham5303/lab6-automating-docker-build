@@ -1,39 +1,48 @@
-# Explanation: This specifies the version of the buildspec file format.
+# Explanation: This buildspec will build our Docker image and then package our Helm Chart.
 version: 0.2
-
-# Explanation: This defines the different phases of our build process.
 phases:
-  # Explanation: Commands to run before the build starts.
   pre_build:
     commands:
-      # Explanation: Log in to AWS ECR using the Docker CLI.
-      # This command gets temporary AWS credentials and uses them to authenticate Docker.
       - echo "Logging in to Amazon ECR..."
+      # AWS_DEFAULT_REGION and ECR_REPOSITORY_URI will be passed as environment variables from CodeBuild
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
-      # Explanation: Define the image name and tag.
-      # We'll use the CodeBuild build ID as a unique tag for our image.
       - REPOSITORY_URI=$ECR_REPOSITORY_URI
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7) # Use first 7 chars of commit ID
+      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - echo "Setting up Kubeconfig for Helm..."
+      # This assumes kubectl is available in CodeBuild environment
+      # We'll configure CodeBuild to have EKS access later via IAM
+      - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
 
-  # Explanation: Commands to run during the build process.
   build:
     commands:
-      # Explanation: Build the Docker image for our web application.
-      # We use the Dockerfile located in the 'app' subfolder.
       - echo "Building the Docker image..."
-      - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG ./app
-
-  # Explanation: Commands to run after the build completes successfully.
-  post_build:
-    commands:
-      # Explanation: Push the 'latest' and tagged images to ECR.
+      # Build the Docker image from the 'docker-compose-app' context
+      - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG ./docker-compose-app
       - echo "Pushing the Docker image to ECR..."
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo "Build and push complete!"
+      - echo "Docker image build and push complete!"
 
-# Explanation: This section specifies which artifacts (files) to save from the build.
-# In our case, we don't need to save any files, as our output is the Docker image in ECR.
+      - echo "Packaging Helm Chart..."
+      # Change directory to the Helm chart folder
+      - cd my-flask-chart
+      # Update the image tag in values.yaml before packaging
+      - sed -i "s|tag: latest|tag: $IMAGE_TAG|" values.yaml
+      # Package the Helm chart. The output will be a .tgz file.
+      - helm package .
+      - mv *.tgz /tmp/my-flask-app.tgz # Move to a known location for artifacts
+
+  post_build:
+    commands:
+      - echo "Build completed successfully. Artifacts prepared."
+
+# Explanation: This defines the artifacts that CodeBuild will output.
+# The Helm chart package (.tgz) will be passed to the next stage (Deploy).
 artifacts:
-  files: []
+  files:
+    - '/tmp/my-flask-app.tgz'
+  discard-paths: yes # Discard the /tmp/ prefix in the artifact
+
+
+
 
