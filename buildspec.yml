@@ -12,6 +12,9 @@ phases:
     - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
     - echo "EKS_CLUSTER_NAME=my-eks-cluster"
     - aws eks list-clusters --region $AWS_DEFAULT_REGION
+    - echo "Listing files in Docker build context:"
+    - ls -R ./docker-compose-app
+
 
   build:
     commands:
