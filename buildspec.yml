@@ -17,7 +17,7 @@ phases:
     commands:
       - echo "Building the Docker image..."
       # Build the Docker image from the 'docker-compose-app' context
-      - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG ./docker-compose-app
+      - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG .
       - echo "Pushing the Docker image to ECR..."
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
@@ -30,7 +30,7 @@ phases:
       - 'sed -i "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
       # Package the Helm chart. The output will be a .tgz file.
       - helm package .
-      - mv *.tgz /tmp/my-flask-app.tgz # Move to a known location for artifacts
+      - mv *.tgz mv *.tgz $CODEBUILD_SRC_DIR/my-flask-app.tgz # Move to a known location for artifacts
 
   post_build:
     commands:
@@ -40,7 +40,7 @@ phases:
 # The Helm chart package (.tgz) will be passed to the next stage (Deploy).
 artifacts:
   files:
-    - /tmp/my-flask-app.tgz
+    - my-flask-app.tgz
   discard-paths: yes # Discard the /tmp/ prefix in the artifact
 
 
