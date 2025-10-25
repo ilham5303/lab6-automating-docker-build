@@ -28,7 +28,7 @@ build:
     - echo "Current dir: $(pwd)"
     - ls -l
     - helm package .
-    - mv *.tgz $CODEBUILD_SRC_DIR/my-flask-app.tgz
+    - mv *.tgz /tmp/my-flask-app.tgz
 
 
   post_build:
@@ -37,5 +37,5 @@ build:
 
 artifacts:
   files:
-    - my-flask-app.tgz
+    - /tmp/my-flask-app.tgz
   discard-paths: yes
