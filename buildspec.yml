@@ -26,7 +26,6 @@ phases:
       - echo "Packaging Helm Chart..."
       - cd my-flask-chart
       - echo "Current dir: $(pwd)"
-      - ls -l
       - sed -i.bak "s|tag: latest|tag: $IMAGE_TAG|" values.yaml
       - helm package .
       - mv *.tgz /tmp/my-flask-app.tgz
