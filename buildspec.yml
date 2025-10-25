@@ -7,6 +7,7 @@ phases:
       - echo "Logging in to Amazon ECR..."
       # AWS_DEFAULT_REGION and ECR_REPOSITORY_URI will be passed as environment variables from CodeBuild
       - echo "AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION"
+      - echo "AWS_DEFAULT_REGION='$AWS_DEFAULT_REGION'"
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
       - REPOSITORY_URI=$ECR_REPOSITORY_URI
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
