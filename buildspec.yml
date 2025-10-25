@@ -4,17 +4,14 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo "Logging in to Amazon ECR..."
-      # AWS_DEFAULT_REGION and ECR_REPOSITORY_URI will be passed as environment variables from CodeBuild
-      - echo "AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION"
-      - echo "AWS_DEFAULT_REGION='$AWS_DEFAULT_REGION'"
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
-      - REPOSITORY_URI=$ECR_REPOSITORY_URI
-      - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - echo "Setting up Kubeconfig for Helm..."
-      # This assumes kubectl is available in CodeBuild environment
-      # We'll configure CodeBuild to have EKS access later via IAM
-      - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
+    - echo "Logging in to Amazon ECR..."
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+    - REPOSITORY_URI=$ECR_REPOSITORY_URI
+    - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+    - echo "Setting up Kubeconfig for Helm..."
+    - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
+    - echo "EKS_CLUSTER_NAME=my-eks-cluster"
+    - aws eks list-clusters --region $AWS_DEFAULT_REGION
 
   build:
     commands:
