@@ -1,6 +1,11 @@
 version: 0.2
 
 phases:
+  install:
+    commands:
+      - echo "Installing Helm..."
+      - curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
@@ -25,22 +30,20 @@ phases:
       - echo "Docker image build and push complete!"
 
       - echo "Packaging Helm Chart..."
+      - mkdir -p ../output                # ✅ ensures output directory exists
       - cd my-flask-chart
-      - 'sed -i.bak "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
-      - helm package .
-      - mkdir -p ../output
-      - mv *.tgz ../output/my-flask-app.tgz
+      - sed -i.bak "s|tag: latest|tag: $IMAGE_TAG|" values.yaml
+      - helm package . -d ../output       # ✅ saves chart into output folder
 
   post_build:
     commands:
       - echo "Build completed successfully. Artifacts prepared."
 
 artifacts:
-  files:
-    - my-flask-app.tgz
   base-directory: output
+  files:
+    - my-flask-app-*.tgz                 # ✅ matches helm package name
   discard-paths: yes
-
 
 
 
