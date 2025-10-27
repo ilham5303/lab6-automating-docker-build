@@ -34,7 +34,7 @@ phases:
       # Debug: list files to ensure Chart.yaml exists
       - echo "Listing files in Helm chart directory:"
       # Update image tag in values.yaml
-      - 'sed -i.bak s|tag: latest|tag: $IMAGE_TAG| values.yaml'
+      - "sed -i.bak \"s|tag: latest|tag: $IMAGE_TAG|\" values.yaml"
       # Create output folder and package chart
       - mkdir -p output
       - helm package . -d output
