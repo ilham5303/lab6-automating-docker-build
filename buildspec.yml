@@ -5,6 +5,7 @@ phases:
     commands:
       - echo "Installing Helm..."
       - curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      - helm version
 
   pre_build:
     commands:
@@ -14,8 +15,6 @@ phases:
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo "Setting up Kubeconfig for Helm..."
       - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
-      - echo "EKS_CLUSTER_NAME=my-eks-cluster"
-      - aws eks list-clusters --region $AWS_DEFAULT_REGION
       - echo "Listing files in Docker build context:"
       - ls -R ./app
 
@@ -23,26 +22,24 @@ phases:
     commands:
       - echo "Building the Docker image..."
       - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG ./app
-
       - echo "Pushing the Docker image to ECR..."
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo "Docker image build and push complete!"
-
       - echo "Packaging Helm Chart..."
-      - mkdir -p ../output                # ✅ ensures output directory exists
       - cd my-flask-chart
-      - sed -i.bak "s|tag: latest|tag: $IMAGE_TAG|" values.yaml
-      - helm package . -d ../output       # ✅ saves chart into output folder
+      - 'sed -i.bak "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
+      - mkdir -p output
+      - helm package . -d output
 
   post_build:
     commands:
       - echo "Build completed successfully. Artifacts prepared."
 
 artifacts:
-  base-directory: output
+  base-directory: my-flask-chart/output
   files:
-    - my-flask-app-*.tgz                 # ✅ matches helm package name
+    - my-flask-app-*.tgz
   discard-paths: yes
 
 
