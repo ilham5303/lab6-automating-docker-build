@@ -16,19 +16,26 @@ phases:
       - echo "Setting up Kubeconfig for Helm..."
       - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
       - echo "Listing files in Docker build context:"
-      - ls -R ./app
+      - ls -R ./lab6-automating-docker-build/app
 
   build:
     commands:
       - echo "Building the Docker image..."
-      - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG ./app
+      - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG ./lab6-automating-docker-build/app
       - echo "Pushing the Docker image to ECR..."
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo "Docker image build and push complete!"
+
       - echo "Packaging Helm Chart..."
-      - cd my-flask-chart
-      - 'sed -i.bak "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
+      # Navigate to the correct Helm chart folder
+      - cd ./lab6-automating-docker-build/my-flask-chart
+      # Debug: list files to ensure Chart.yaml exists
+      - echo "Listing files in Helm chart directory:"
+      - ls -lR
+      # Update image tag in values.yaml
+      - sed -i.bak "s|tag: latest|tag: $IMAGE_TAG|" values.yaml
+      # Create output folder and package chart
       - mkdir -p output
       - helm package . -d output
 
@@ -37,11 +44,7 @@ phases:
       - echo "Build completed successfully. Artifacts prepared."
 
 artifacts:
-  base-directory: my-flask-chart/output
+  base-directory: lab6-automating-docker-build/my-flask-chart/output
   files:
     - my-flask-app-*.tgz
   discard-paths: yes
-
-
-
-
