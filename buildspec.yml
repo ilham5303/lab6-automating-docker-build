@@ -21,7 +21,7 @@ phases:
   build:
     commands:
       - echo "Building the Docker image..."
-      - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG ./lab6-automating-docker-build/app
+      - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG ./lab6-automating-docker-build
       - echo "Pushing the Docker image to ECR..."
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
@@ -29,7 +29,7 @@ phases:
 
       - echo "Packaging Helm Chart..."
       # Navigate to the correct Helm chart folder
-      - cd ./lab6-automating-docker-build/my-flask-chart
+      - cd ./my-flask-chart
       # Debug: list files to ensure Chart.yaml exists
       - echo "Listing files in Helm chart directory:"
       - ls -lR
