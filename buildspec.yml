@@ -28,7 +28,7 @@ phases:
       # Change directory to the Helm chart folder
       - cd my-flask-chart
       # Update the image tag in values.yaml before packaging
-      - sed -i '' "s|tag: latest|tag: $IMAGE_TAG|" values.yaml
+      - 'sed -i  "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
       # Package the Helm chart. The output will be a .tgz file.
       - helm package .
       - mv *.tgz /tmp/my-flask-app.tgz # Move to a known location for artifacts
