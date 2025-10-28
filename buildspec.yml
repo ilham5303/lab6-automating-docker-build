@@ -42,6 +42,4 @@ phases:
 artifacts:
   files:
     - '/tmp/my-flask-app.tgz'
-  discard-paths: yes # Discard the /tmp/ prefix in the artifact
-
-
+  discard-paths: yes
