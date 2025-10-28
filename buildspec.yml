@@ -1,26 +1,23 @@
+# Explanation: This buildspec will build our Docker image and then package our Helm Chart.
 version: 0.2
 
 phases:
-  install:
-    commands:
-      - echo "Installing Helm..."
-      - curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-      - helm version
-
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
+      # AWS_DEFAULT_REGION and ECR_REPOSITORY_URI will be passed as environment variables from CodeBuild
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
       - REPOSITORY_URI=$ECR_REPOSITORY_URI
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo "Setting up Kubeconfig for Helm..."
-      - aws eks update-kubeconfig --name my-eks-cluster --region $AWS_DEFAULT_REGION
-      - echo "Listing files in Docker build context:"
-      - ls -R ./app
+      # This assumes kubectl is available in CodeBuild environment
+      # We'll configure CodeBuild to have EKS access later via IAM
+      - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
 
   build:
     commands:
       - echo "Building the Docker image..."
+      # Build the Docker image from the 'docker-compose-app' context
       - docker build -t $REPOSITORY_URI:latest -t $REPOSITORY_URI:$IMAGE_TAG ./app
       - echo "Pushing the Docker image to ECR..."
       - docker push $REPOSITORY_URI:latest
@@ -28,22 +25,23 @@ phases:
       - echo "Docker image build and push complete!"
 
       - echo "Packaging Helm Chart..."
-      # Navigate to the correct Helm chart folder
-      - cd ./my-flask-chart
-      # Debug: list files to ensure Chart.yaml exists
-      - echo "Listing files in Helm chart directory:"
-      # Update image tag in values.yaml
-      - "sed -i.bak \"s|tag: latest|tag: $IMAGE_TAG|\" values.yaml"
-      # Create output folder and package chart
-      - mkdir -p output
-      - helm package . -d output
+      # Change directory to the Helm chart folder
+      - cd my-flask-chart
+      # Update the image tag in values.yaml before packaging
+      - sed -i "s|tag: latest|tag: $IMAGE_TAG|" values.yaml
+      # Package the Helm chart. The output will be a .tgz file.
+      - helm package .
+      - mv *.tgz /tmp/my-flask-app.tgz # Move to a known location for artifacts
 
   post_build:
     commands:
       - echo "Build completed successfully. Artifacts prepared."
 
+# Explanation: This defines the artifacts that CodeBuild will output.
+# The Helm chart package (.tgz) will be passed to the next stage (Deploy).
 artifacts:
-  base-directory: my-flask-chart/output
   files:
-    - my-flask-app-*.tgz
-  discard-paths: yes
+    - '/tmp/my-flask-app.tgz'
+  discard-paths: yes # Discard the /tmp/ prefix in the artifact
+
+
