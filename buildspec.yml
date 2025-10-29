@@ -38,7 +38,7 @@ phases:
       - 'sed -i  "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
       # Package the Helm chart. The output will be a .tgz file.
       - helm package .
-      - mv *.tgz /tmp/my-flask-app.tgz # Move to a known location for artifacts
+      - mv *.tgz ../my-flask-app.tgz # Move to a known location for artifacts
 
   post_build:
     commands:
@@ -48,5 +48,5 @@ phases:
 # The Helm chart package (.tgz) will be passed to the next stage (Deploy).
 artifacts:
   files:
-    - /tmp/my-flask-app.tgz
+    - my-flask-app.tgz
   discard-paths: yes
