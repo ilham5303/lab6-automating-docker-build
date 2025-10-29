@@ -4,13 +4,10 @@ version: 0.2
 phases:
   install:
     commands:
-      - apt-get update -y
-      - apt-get install -y curl tar gzip bash
-      - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-      - chmod 700 get_helm.sh
-      - ./get_helm.sh
-      - export PATH=$PATH:/usr/local/bin
+      - echo "Using preinstalled Helm and kubectl"
       - helm version
+      - kubectl version --client
+
 
 
       #- echo "Installing Helm..."
