@@ -27,13 +27,11 @@ phases:
       - echo "Docker image build and push complete!"
 
       - echo "Updating Helm chart with new image tag..."
-      # Navigate to the Helm chart folder
+      - mkdir -p BuildOutput
       - cd my-flask-chart
-      # Replace tag in values.yaml
       - 'sed -i "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
-      # Package Helm chart into /tmp
-      - helm package . 
-      - mv *.tgz /tmp/my-flask-app.tgz # Move to a known location for artifacts
+      - helm package . --destination ../BuildOutput
+      - mv ../BuildOutput/*.tgz ../BuildOutput/my-flask-app.tgz
       - echo "Helm chart packaged successfully"
 
   post_build:
@@ -42,5 +40,5 @@ phases:
 
 artifacts:
   files:
-    - /tmp/my-flask-app.tgz
+    - BuildOutput/my-flask-app.tgz
   discard-paths: yes
