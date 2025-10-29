@@ -1,15 +1,14 @@
 # Explanation: This buildspec will build our Docker image and then package our Helm Chart.
 version: 0.2
 
-phases: 
+phases:
   install:
-    runtime-versions:
-      docker: 20
     commands:
-      - echo "Installing Helm from Amazon Linux repositories..."
-      - yum install -y tar gzip
+      - echo "Installing Helm..."
+      - yum install -y tar gzip curl
       - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
       - helm version
+
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
