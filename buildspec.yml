@@ -17,7 +17,7 @@ phases:
       - echo "Logging in to Amazon ECR..."
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
       - echo "Logging in to Docker Hub to avoid rate limit..."
-      - echo $"DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME"--password-stdin
+      - echo "$DOCKERHUB_PASSWORD" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
       - REPOSITORY_URI=$ECR_REPOSITORY_URI
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo "Setting up Kubeconfig for Helm..."
@@ -46,5 +46,3 @@ artifacts:
   files:
     - '/tmp/my-flask-app.tgz'
   discard-paths: yes
-
-
