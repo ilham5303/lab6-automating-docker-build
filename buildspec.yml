@@ -3,13 +3,13 @@ version: 0.2
 
 phases: 
   install:
+    runtime-versions:
+      docker: 20
     commands:
-      - echo "Installing Helm manually..."
-      - curl -LO https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz
-      - tar -zxvf helm-v3.14.0-linux-amd64.tar.gz
-      - mv linux-amd64/helm /usr/local/bin/helm
+      - echo "Installing Helm from Amazon Linux repositories..."
+      - yum install -y tar gzip
+      - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
       - helm version
-
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
