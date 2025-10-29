@@ -1,4 +1,3 @@
-# Explanation: This buildspec will build our Docker image and then package our Helm Chart.
 version: 0.2
 
 phases:
@@ -9,16 +8,14 @@ phases:
       - chmod 700 get_helm.sh
       - ./get_helm.sh
       - helm version
+
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
-      # AWS_DEFAULT_REGION and ECR_REPOSITORY_URI will be passed as environment variables from CodeBuild
       - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
       - REPOSITORY_URI=$ECR_REPOSITORY_URI
       - IMAGE_TAG=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - echo "Setting up Kubeconfig for Helm..."
-      # This assumes kubectl is available in CodeBuild environment
-      # We'll configure CodeBuild to have EKS access later via IAM
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
 
   build:
@@ -30,18 +27,18 @@ phases:
       - echo "Docker image build and push complete!"
 
       - echo "Updating Helm chart with new image tag..."
-      - echo "Packaging Helm Chart..."
-      - cd my-flask-chart
+      # Navigate to the Helm chart folder
+      - cd $CODEBUILD_SRC_DIR/my-flask-chart
+      # Replace tag in values.yaml
       - 'sed -i "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
+      # Package Helm chart into /tmp
       - helm package . --destination /tmp
-      - mv *.tgz /tmp/my-flask-app.tgz
+      - echo "Helm chart packaged successfully"
 
   post_build:
     commands:
       - echo "Build completed successfully. Artifacts prepared."
 
-# Explanation: This defines the artifacts that CodeBuild will output.
-# The Helm chart package (.tgz) will be passed to the next stage (Deploy).
 artifacts:
   files:
     - /tmp/*.tgz
