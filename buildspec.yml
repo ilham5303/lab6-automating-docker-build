@@ -43,5 +43,5 @@ phases:
 # The Helm chart package (.tgz) will be passed to the next stage (Deploy).
 artifacts:
   files:
-    -/tmp/my-flask-app.tgz
+    - /tmp/my-flask-app.tgz
   discard-paths: yes
