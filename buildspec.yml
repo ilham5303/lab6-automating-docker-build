@@ -28,11 +28,12 @@ phases:
 
       - echo "Updating Helm chart with new image tag..."
       # Navigate to the Helm chart folder
-      - cd $CODEBUILD_SRC_DIR/my-flask-chart
+      - cd my-flask-chart
       # Replace tag in values.yaml
       - 'sed -i "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
       # Package Helm chart into /tmp
-      - helm package . --destination /tmp
+      - helm package . 
+      - mv *.tgz /tmp/my-flask-app.tgz # Move to a known location for artifacts
       - echo "Helm chart packaged successfully"
 
   post_build:
@@ -41,5 +42,5 @@ phases:
 
 artifacts:
   files:
-    - /tmp/*.tgz
+    - /tmp/my-flask-app.tgz
   discard-paths: yes
