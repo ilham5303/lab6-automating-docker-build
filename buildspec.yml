@@ -30,11 +30,12 @@ phases:
       - echo "Docker image build and push complete!"
 
       - echo "Updating Helm chart with new image tag..."
-      - 'sed -i "s|tag: latest|tag: $IMAGE_TAG|" my-flask-chart/values.yaml'
       - echo "Packaging Helm Chart..."
-      - helm package my-flask-chart --destination /tmp
-      - mv /tmp/my-flask-chart-*.tgz /tmp/my-flask-app.tgz
-      - echo "Helm chart packaged successfully!"
+      - cd my-flask-chart
+      - 'sed -i "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
+      - helm package .
+      - mv *.tgz /tmp/my-flask-app.tgz
+
   post_build:
     commands:
       - echo "Build completed successfully. Artifacts prepared."
