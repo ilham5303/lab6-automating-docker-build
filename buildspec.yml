@@ -2,6 +2,13 @@
 version: 0.2
 
 phases:
+  install:
+    commands:
+      - echo "Installing Helm..."
+      - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+      - chmod 700 get_helm.sh
+      - ./get_helm.sh
+      - helm version
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
@@ -41,5 +48,5 @@ phases:
 # The Helm chart package (.tgz) will be passed to the next stage (Deploy).
 artifacts:
   files:
-    - '/tmp/my-flask-app.tgz'
+    - /tmp/my-flask-app.tgz
   discard-paths: yes
