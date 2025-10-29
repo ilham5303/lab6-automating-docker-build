@@ -5,11 +5,20 @@ phases:
   install:
     commands:
       - echo "Installing Helm..."
-      - apt-get update -y
-      - apt-get install -y tar gzip curl
-      - curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-      - export PATH=$PATH:/root/.local/bin
+      - yum update -y
+      - yum install -y tar gzip curl
+      - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+      - chmod +x get_helm.sh
+      - ./get_helm.sh
       - helm version
+      
+      
+      #- echo "Installing Helm..."
+      #- apt-get update -y
+      #- apt-get install -y tar gzip curl
+      #- curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      #- export PATH=$PATH:/root/.local/bin
+     # - helm version
 
   pre_build:
     commands:
