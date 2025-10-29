@@ -33,7 +33,7 @@ phases:
       - echo "Packaging Helm Chart..."
       - cd my-flask-chart
       - 'sed -i "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
-      - helm package .
+      - helm package . --destination /tmp
       - mv *.tgz /tmp/my-flask-app.tgz
 
   post_build:
