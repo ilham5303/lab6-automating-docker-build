@@ -4,11 +4,15 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Installing Helm..."
+      - echo "Installing Helm and kubectl..."
+      - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+      - chmod +x kubectl && mv kubectl /usr/local/bin/
       - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
       - chmod 700 get_helm.sh
       - ./get_helm.sh
       - helm version  
+      - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
+
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
@@ -39,8 +43,10 @@ phases:
       # Package the Helm chart. The output will be a .tgz file.
       - helm package .
       - mv *.tgz ../my-flask-app.tgz
-      - tar -xzf my-flask-app.tgz -C /tmp
-
+      - echo "Listing files in root:"
+      - ls -lah ../
+      - echo "Deploying Helm chart..."
+      - helm upgrade --install my-flask-app ../my-flask-app.tgz -f values.yaml
       #- mv *.tgz /tmp/my-flask-app.tgz # Move to a known location for artifacts
       #- echo "Listing artifacts in root directory..."
 
