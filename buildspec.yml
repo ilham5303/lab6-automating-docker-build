@@ -39,13 +39,7 @@ phases:
       # Package the Helm chart. The output will be a .tgz file.
       - helm package .
       - mv *.tgz ../my-flask-app.tgz
-      - cd ..
-      - echo "Listing packaged files..."
-      - ls -lah
-      - echo "Extracting Helm chart..."
-      - tar -xzf my-flask-app.tgz -C /tmp/
-      - echo "Deploying Helm chart..."
-      - helm upgrade --install my-flask-app /tmp/my-flask-chart -f /tmp/my-flask-chart/values.yaml
+      - tar -xzf my-flask-app.tgz -C /tmp
 
       #- mv *.tgz /tmp/my-flask-app.tgz # Move to a known location for artifacts
       #- echo "Listing artifacts in root directory..."
