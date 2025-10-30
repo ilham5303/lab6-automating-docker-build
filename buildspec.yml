@@ -31,19 +31,17 @@ phases:
       - docker push $REPOSITORY_URI:latest
       - docker push $REPOSITORY_URI:$IMAGE_TAG
       - echo "Docker image build and push complete!"
-
       - echo "Packaging Helm Chart..."
-      # Change directory to the Helm chart folder
+      - mkdir -p BuildOutput
       - cd my-flask-chart
-      # Update the image tag in values.yaml before packaging
       - 'sed -i "s|tag: latest|tag: $IMAGE_TAG|" values.yaml'
-      # Package the Helm chart. The output will be a .tgz file.
       - helm package .
       - CHART_TGZ=$(ls *.tgz | head -n 1)
       - mv "$CHART_TGZ" ../BuildOutput/my-flask-app.tgz
       - cd ..
-      - echo "Listing artifacts in BuildOutput..."
+      - echo "Listing artifacts..."
       - ls -l BuildOutput/
+
       #- mv *.tgz /tmp/my-flask-app.tgz # Move to a known location for artifacts
       #- echo "Listing artifacts in root directory..."
 
