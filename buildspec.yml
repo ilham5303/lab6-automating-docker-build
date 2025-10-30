@@ -2,6 +2,16 @@
 version: 0.2
 
 phases:
+  install:
+    commands:
+      - echo "Installing Helm..."
+      - apt-get update -y
+      - apt-get install -y curl tar gzip
+      - curl -fsSL https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz -o helm.tar.gz
+      - tar -zxvf helm.tar.gz
+      - mv linux-amd64/helm /usr/local/bin/helm
+      - helm version
+
   pre_build:
     commands:
       - echo "Logging in to Amazon ECR..."
