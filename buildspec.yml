@@ -4,14 +4,11 @@ version: 0.2
 phases:
   install:
     commands:
-      - echo "Installing Helm and kubectl..."
-      - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
-      - chmod +x kubectl && mv kubectl /usr/local/bin/
+      - echo "Installing Helm..."
       - curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
       - chmod 700 get_helm.sh
       - ./get_helm.sh
       - helm version  
-      - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
 
   pre_build:
     commands:
