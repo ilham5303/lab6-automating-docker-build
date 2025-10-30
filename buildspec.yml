@@ -39,6 +39,8 @@ phases:
       # Package the Helm chart. The output will be a .tgz file.
       - helm package .
       - mv *.tgz /tmp/my-flask-app.tgz # Move to a known location for artifacts
+      - echo "Extracting Helm Chart artifact..."
+      - ls -lah /tmp/
 
   post_build:
     commands:
